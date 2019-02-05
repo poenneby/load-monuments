@@ -18,6 +18,18 @@
                           :db/valueType :db.type/string
                           :db/cardinality :db.cardinality/one
                           :db/doc "The TICO of the monument"}
+                         {:db/ident :monument/insee
+                          :db/valueType :db.type/string
+                          :db/cardinality :db.cardinality/one
+                          :db/doc "The INSEE of the monument"}
+                         {:db/ident :monument/ppro
+                          :db/valueType :db.type/string
+                          :db/cardinality :db.cardinality/one
+                          :db/doc "The PPRO of the monument"}
+                         {:db/ident :monument/dpt
+                          :db/valueType :db.type/string
+                          :db/cardinality :db.cardinality/one
+                          :db/doc "The DPT of the monument"}
                          {:db/ident :monument/reg
                           :db/valueType :db.type/string
                           :db/cardinality :db.cardinality/one
@@ -33,6 +45,9 @@
     (let [first-monuments (vec (for [monument (take 100000 monuments)
                                         :let [entity {:monument/ref (:REF monument)
                                                       :monument/tico (:TICO monument)
+                                                      :monument/insee (:INSEE monument)
+                                                      :monument/ppro (:PPRO monument)
+                                                      :monument/dpt (:DPT monument)
                                                       :monument/reg (:REG monument)}]
                                         :when (not (empty? monument))] entity))]
       (d/transact conn first-monuments)
