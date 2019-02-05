@@ -1,36 +1,33 @@
 # load-monuments
 
-FIXME: description
+This script creates the *monumental* database with a schema and persists the data of the monuments from MERIMEE in [Datomic](https://www.datomic.com).
 
-## Installation
+## Prerequisites
 
-Download from http://example.com/FIXME.
+You need a [Datomic transactor](https://docs.datomic.com/on-prem/transactor.html) running.
+
+Example:
+
+```
+> $DATOMIC_HOME/bin/transactor $DATOMIC_HOME/config/samples/dev-transactor-template.properties
+```
+
+
+Get the monuments from the MERIMEE database and put them in the resources directory:
+
+```
+cd resources
+wget http://data.culture.fr/entrepot/MERIMEE/merimee-MH.json
+```
 
 ## Usage
 
-FIXME: explanation
+Run the script using Leiningen:
 
-    $ java -jar load-monuments-0.1.0-standalone.jar [args]
+`lein run`
 
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2019 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+```
+Creating database
+Creating schema
+Loaded 45285 monument(s)
+```
