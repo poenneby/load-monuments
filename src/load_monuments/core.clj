@@ -5,11 +5,17 @@
 
 (defonce monuments (parse-string (slurp (io/resource "merimee-MH.json")) true))
 
+(def db-uri "datomic:free://localhost:4334/monumental")
+
+(defn create-db []
+  (d/create-database db-uri))
+
 (defn connect []
-  (let [db-uri "datomic:free://localhost:4334/monumental"]
-     (d/connect db-uri)))
+  (println "Creating database")
+  (d/connect db-uri))
 
 (defn create-schema [conn]
+  (println "Creating schema")
   (let [monument-schema [{:db/ident :monument/ref
                           :db/valueType :db.type/string
                           :db/cardinality :db.cardinality/one
@@ -37,12 +43,9 @@
                           :db/doc "The region of the monument"}]]
     (d/transact conn monument-schema)))
 
-(defn -main
-  "Load the monuments into our datomic database"
-  [& args]
-  (let [conn (connect)]
-    (create-schema conn)
-    (let [first-monuments (vec (for [monument (take 100000 monuments)
+(defn load-data [conn]
+  (println "Loading data...")
+  (let [first-monuments (vec (for [monument (take 100000 monuments)
                                         :let [entity {:monument/ref (:REF monument)
                                                       :monument/tico (:TICO monument)
                                                       :monument/insee (:INSEE monument)
@@ -52,6 +55,14 @@
                                         :when (not (empty? monument))] entity))]
       (d/transact conn first-monuments)
       (println (str "Loaded " (count first-monuments) " monument(s)"))))
+
+(defn -main
+  "Load the monuments into our datomic database"
+  [& args]
+  (create-db)
+  (let [conn (connect)]
+    (create-schema conn)
+    (load-data conn))
   (System/exit 0))
 
 
