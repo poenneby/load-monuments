@@ -3,7 +3,7 @@
             [clojure.java.io :as io]
             [cheshire.core :refer [parse-string]]))
 
-(defonce monuments (parse-string (slurp (io/resource "merimee-MH-1.json")) true))
+(defonce monuments (parse-string (slurp (io/resource "merimee-MH.json")) true))
 
 (defn connect []
   (let [db-uri "datomic:free://localhost:4334/monumental"]
@@ -30,10 +30,11 @@
   [& args]
   (let [conn (connect)]
     (create-schema conn)
-    (let [first-monuments (vec (for [monument (take 100000 monuments)] {:monument/ref (:REF monument)
-                                                                    :monument/tico (:TICO monument)
-                                                                    :monument/reg (:REG monument)
-                                                                    }))]
+    (let [first-monuments (vec (for [monument (take 100000 monuments)
+                                        :let [entity {:monument/ref (:REF monument)
+                                                      :monument/tico (:TICO monument)
+                                                      :monument/reg (:REG monument)}]
+                                        :when (not (empty? monument))] entity))]
       (d/transact conn first-monuments)
       (println (str "Loaded " (count first-monuments) " monument(s)"))))
   (System/exit 0))
