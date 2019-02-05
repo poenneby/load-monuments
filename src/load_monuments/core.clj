@@ -1,18 +1,13 @@
 (ns load-monuments.core
-  (:require [datomic.client.api :as d]
+  (:require [datomic.api :as d]
             [clojure.java.io :as io]
             [cheshire.core :refer [parse-string]]))
 
-(defonce monuments (parse-string (slurp (io/resource "merimee-MH.json")) true))
+(defonce monuments (parse-string (slurp (io/resource "merimee-MH-1.json")) true))
 
 (defn connect []
-  (let [cfg {:server-type :peer-server
-          :access-key "myaccesskey"
-          :secret "mysecret"
-          :endpoint "localhost:8998"}
-         client (d/client cfg)]
-     (d/connect client {:db-name "monumental"})))
-
+  (let [db-uri "datomic:free://localhost:4334/monumental"]
+     (d/connect db-uri)))
 
 (defn create-schema [conn]
   (let [monument-schema [{:db/ident :monument/ref
@@ -28,21 +23,20 @@
                           :db/cardinality :db.cardinality/one
                           :db/fulltext true
                           :db/doc "The region of the monument"}]]
-    (d/transact conn {:tx-data monument-schema})))
+    (d/transact conn monument-schema)))
 
 (defn -main
   "Load the monuments into our datomic database"
   [& args]
   (let [conn (connect)]
     (create-schema conn)
-     (let [first-monuments (vec (for [monument (take 10000 monuments)] {:monument/ref (:REF monument)
-                                                                        :monument/tico (:TICO monument)
-                                                                        :monument/reg (:REG monument)
-                                                                        }))]
-       (d/transact conn {:tx-data first-monuments}))
-
-    (def db (d/db conn))
-      (println (str "We have a monuments " monuments))))
+    (let [first-monuments (vec (for [monument (take 100000 monuments)] {:monument/ref (:REF monument)
+                                                                    :monument/tico (:TICO monument)
+                                                                    :monument/reg (:REG monument)
+                                                                    }))]
+      (d/transact conn first-monuments)
+      (println (str "Loaded " (count first-monuments) " monument(s)"))))
+  (System/exit 0))
 
 
 
