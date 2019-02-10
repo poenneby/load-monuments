@@ -16,8 +16,7 @@ Example:
 Get the monuments from the MERIMEE database and put them in the resources directory:
 
 ```
-cd resources
-wget http://data.culture.fr/entrepot/MERIMEE/merimee-MH.json
+wget -P resources http://data.culture.fr/entrepot/MERIMEE/merimee-MH.json
 ```
 
 ## Usage
